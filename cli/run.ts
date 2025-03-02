@@ -162,12 +162,15 @@ async function run_generator(output_dir: string, moduleName: string, elm_source:
   }
 }
 
-function generate(debug: boolean, elm_file: string, moduleName: string, output_dir: string, cwd: string, flags: any) {
+function generate(debug: boolean, elm_file: string, moduleName: string, output_dir: string, cwd: string, flags: any, path_to_elm?: string | null) {
   try {
+    const extra = path_to_elm ? {pathToElm: path_to_elm} : {}
+
     const data = elm_compiler.compileToStringSync([elm_file], {
       cwd: cwd,
       optimize: !debug,
       processOpts: { stdio: [null, null, "inherit"] },
+      ...extra
     })
 
     // @ts-ignore
@@ -556,11 +559,12 @@ export type Options = {
   output: string
   flags: unknown
   cwd: string
+  pathToElm : string | null
 }
 
 export async function run(elmFile: string, options: Options) {
   const moduleName = path.parse(elmFile).name
-  generate(options.debug, elmFile, moduleName, options.output, options.cwd || ".", options.flags)
+  generate(options.debug, elmFile, moduleName, options.output, options.cwd || ".", options.flags, options.pathToElm)
 }
 
 export type CliOptions = {
